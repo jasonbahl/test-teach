@@ -14,6 +14,7 @@ fragment MetaFields on Post {
     nodes {
       firstName
       lastName
+      avatarUrl
     }
   }
 }
@@ -33,7 +34,7 @@ class ArticleCardMeta extends Component {
         return (
             <Meta
                 avatar={<Avatar
-                    src='https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png'/>}
+                    src={node.authors.nodes[0].avatarUrl}/>}
                 title={node.authors.nodes[0].firstName + ' ' + node.authors.nodes[0].lastName}
                 description={<Moment format="MMM DD, YYYY">{node.date}</Moment>}
             />

@@ -1,5 +1,5 @@
 import ApolloClient from "apollo-boost";
 
 export const client = new ApolloClient({
-    uri: "https://www.denverpost.com/graphql"
+    uri: "http://localhost:9002/graphql"
 });
