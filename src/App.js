@@ -10,8 +10,12 @@ import Moment from 'react-moment';
 const {Meta} = Card;
 
 const QUERY_GET_POSTS = gql`
-query GET_POSTS($first: Int) {
-  posts(first: $first) {
+query GET_POSTS($first: Int $after: String) {
+  posts(first: $first after: $after) {
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
     edges {
       node {
         id
@@ -34,7 +38,7 @@ query GET_POSTS($first: Int) {
 }
 `;
 
-export const QUERY_FIRST_AMOUNT = 100;
+export const QUERY_FIRST_AMOUNT = 12;
 
 class App extends Component {
     render() {
@@ -45,7 +49,8 @@ class App extends Component {
                         query={QUERY_GET_POSTS}
                         fetchPolicy="cache-and-network"
                         variables={{
-                            first: QUERY_FIRST_AMOUNT
+                            first: QUERY_FIRST_AMOUNT,
+                            after: null
                         }}
                     >
                         {({loading, error, fetchMore, data: {posts}}) => {
@@ -80,14 +85,39 @@ class App extends Component {
                                             </a>
                                         </Col>
                                     ))}
+                                    {posts.pageInfo.hasNextPage ?
+                                        <Button
+                                            type="primary"
+                                            onClick={() => {
+                                                fetchMore({
+                                                    query: QUERY_GET_POSTS,
+                                                    variables: {
+                                                        first: QUERY_FIRST_AMOUNT,
+                                                        after: posts && posts.pageInfo && posts.pageInfo.endCursor ? posts.pageInfo.endCursor : null
+                                                    },
+                                                    updateQuery: (previousResult, {fetchMoreResult}) => {
+                                                        const newEdges = fetchMoreResult.posts.edges;
+                                                        const pageInfo = fetchMoreResult.posts.pageInfo;
+                                                        return newEdges.length ? {
+                                                            posts: {
+                                                                __typename: previousResult.posts.__typename,
+                                                                edges: [...previousResult.posts.edges, ...newEdges],
+                                                                pageInfo
+                                                            }
+                                                        } : previousResult
+                                                    }
+                                                })
+                                            }}>Load More</Button> : null
+                                    }
                                 </Row>
                             );
                         }}
                     </Query>
-                </AppLayout>
+                </ AppLayout>
             </ApolloProvider>
         );
     }
 }
 
-export default App;
+export default App
+
