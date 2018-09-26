@@ -12,10 +12,6 @@ const {Meta} = Card;
 const QUERY_GET_POSTS = gql`
 query GET_POSTS($first: Int) {
   posts(first: $first) {
-    pageInfo {
-      hasNextPage
-      endCursor
-    }
     edges {
       node {
         id
